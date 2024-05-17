@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Text Inputs</title>
+<script src="popup.js" defer></script>
+<style>
+    #colorPicker {
+        width: 200px;
+        height: 200px;
+        border: 1px solid black;
+        cursor: pointer;
+    }
+</style>
+</head>
+<body>
+
+<h2>Color Setup</h2>
+
+<label for="input1">Rot:</label><br>
+<input type="text" id="input1"><br><br>
+
+<label for="input2">Grün:</label><br>
+<input type="text" id="input2"><br><br>
+
+<label for="input3">Blau:</label><br>
+<input type="text" id="input3"><br><br>
+
+<div id="colorDiff" style="display: inline-block; min-width: 150px; min-height: 150px;;">
+</div><br>
+
+<button id="ConnectBackgroundBtn">Connect Background</button>
+<button id="ColorPickerBtn">Select Color</button>
+<button id="SetRedBtn">Besprechung</button>
+<button id="SetGreenBtn">Frei</button>
+<button id="SetYellowBtn">AFK</button>
+
+</body>
+</html>
