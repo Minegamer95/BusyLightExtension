@@ -149,11 +149,11 @@ chrome.runtime.onInstalled.addListener(async () => {
 
 async function changeColor(color)
 {
-    if (parseInt(color.r) == NaN)
+    if (typeof(color.r) !== "number")
         color.r = 0;
-    if (parseInt(color.g) == NaN)
+    if (typeof(color.g) !== "number")
         color.g = 0;
-    if (parseInt(color.b) == NaN)
+    if (typeof(color.b) !== "number")
         color.b = 0;
 
     // Überprüfen Sie, ob die Werte zwischen 0 und 255 liegen

@@ -50,10 +50,21 @@ document.getElementById('SetGreenBtn').addEventListener('click', function(){setC
 document.getElementById('SetYellowBtn').addEventListener('click', function(){setColor(255, 255, 0);});
 let connectBtn = document.getElementById('ConnectBackgroundBtn');
 connectBtn.addEventListener("click", async () => {
+    const currentUrl = window.location.href;
+    console.log("Aktuelle URL:", currentUrl);
+    navigator.clipboard.writeText(currentUrl)
+        .then(() => {
+          console.log("Text erfolgreich in die Zwischenablage kopiert:", currentUrl);
+        })
+        .catch(err => {
+          console.error("Fehler beim Kopieren des Textes in die Zwischenablage:", err);
+        });
+
     await navigator.hid.requestDevice({ 
         filters: [{ vendorId: 0x27bb }] 
     });
     chrome.runtime.sendMessage("newDevice");
+    updateColor();
   });
 
 // Color Input Listern
