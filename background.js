@@ -214,3 +214,17 @@ async function sendPacket(packet)
         return false;
     }
 }
+
+// Message Sender
+
+function idleStateChanged(toState){
+    const state = {
+        action: "idleStateChanged",
+        data: toState
+    };
+    chrome.runtime.sendMessage(state);
+}
+chrome.idle.setDetectionInterval(
+    15
+  );
+chrome.idle.onStateChanged.addListener(idleStateChanged);

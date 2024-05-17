@@ -1,3 +1,5 @@
+'use strict';
+window.onload = async () => {
 function updateColor() {
     // Holen Sie sich die Werte der roten, grünen und blauen Farbkomponenten
     color.r = document.getElementById('input1').value;
@@ -40,6 +42,9 @@ let color = {
     g: 0,
     b: 0,
 }
+
+let testBtn = document.getElementById('testBtn');
+let test2Btn = document.getElementById('test2Btn');
 //#endregion
 
 //#region Register Listeners
@@ -48,6 +53,15 @@ document.getElementById('ColorPickerBtn').addEventListener('click', showColorPic
 document.getElementById('SetRedBtn').addEventListener('click', function(){setColor(255, 0, 0);});
 document.getElementById('SetGreenBtn').addEventListener('click', function(){setColor(0, 255, 0);});
 document.getElementById('SetYellowBtn').addEventListener('click', function(){setColor(255, 255, 0);});
+document.getElementById('testBtn').addEventListener("click", async () => {
+    console.log("Hallo Welt");
+    setColor(255, 255, 0);
+    await navigator.hid.requestDevice({
+      filters: [],
+      userGesture: true
+    });
+    chrome.runtime.sendMessage("newDevice");
+  });
 let connectBtn = document.getElementById('ConnectBackgroundBtn');
 connectBtn.addEventListener("click", async () => {
     const currentUrl = window.location.href;
@@ -71,7 +85,33 @@ connectBtn.addEventListener("click", async () => {
 document.getElementById('input1').addEventListener('input', updateColor());
 document.getElementById('input2').addEventListener('input', updateColor());
 document.getElementById('input3').addEventListener('input', updateColor());
-//#endregion
 
-// Turn of the Light at Startup;
-setColor(0, 0, 0);
+//test2Btn.addEventListener("click", async () => {
+//    console.log("Hallo Welt");
+//    await navigator.hid.requestDevice({
+//      filters: [],
+//    });
+//    chrome.runtime.sendMessage("newDevice");
+//  });
+//  
+
+//// Message Listerner
+//chrome.runtime.onMessage.addListener(async (message) => {
+//    if (message.action === "idleStateChanged") {
+//        handleStateChanged(message.data);
+//      }
+//  });
+////#endregion
+//
+//// Turn of the Light at Startup;
+//setColor(0, 0, 0);
+//
+//function handleStateChanged(newState) {
+//    console.log('Systemstatus geändert:', newState);
+//    document.getElementById('output1').value = newState;
+//  }
+//handleStateChanged("active");
+};
+
+
+  
