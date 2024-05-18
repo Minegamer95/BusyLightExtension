@@ -1,8 +1,18 @@
+let devices;
+let color = {r: 0, g: 0, b: 0};
+let settings = {
+    modes: [
+        { name: "Besprechung", r: 255, g: 0, b: 0 },
+        { name: "Verfügbar", r: 0, g: 255, b: 0 },
+        { name: "LaptopLocket", r: 0, g: 255, b: 255 },
+        { name: "TeamsAFK", r: 0, g: 255, b: 255 },
+    ],
+    keepAliveInterval: 5000
+}
+let keepAliveInterval = 5000;
+keepAliveId = setInterval(sendKeepAlive, keepAliveInterval);
 
-let device;
-keepAliveId = setInterval(sendKeepAlive, 5000);
-
-function isReady() {
+function isReady(device) {
     return device !== null && device !== undefined;
 }
 
@@ -41,8 +51,7 @@ class JumpStep {
         this.volume = 0;       // 00:02 000 stops ringtone
     }
 
-    toBinaryString()
-    {
+    toBinaryString() {
 
         //#region This Values are Constand and do not change
         //const binaryJump = this.jump.toString(2).padStart(4, 0);
@@ -50,7 +59,7 @@ class JumpStep {
         const binaryJump = 0x1.toString(2).padStart(4, 0);
         const binaryPad0 = 0x0.toString(2).padStart(1, 0);
         //#endregion
-        
+
         const binaryTarged = this.target.toString(2).padStart(3, 0);
         const binaryRepeat = this.repeat.toString(2).padStart(8, 0);
 
@@ -60,12 +69,12 @@ class JumpStep {
 
         const binaryOnTime = this.on_time.toString(2).padStart(8, 0);
         const binaryOffTime = this.off_time.toString(2).padStart(8, 0);
-        
+
         const binaryUpdate = this.update.toString(2).padStart(1, 0);
         const binaryRingtone = this.ringtone.toString(2).padStart(4, 0);
         const binaryVolume = this.volume.toString(2).padStart(3, 0);
-        
-        const binaryString = binaryJump + binaryPad0 + binaryTarged + binaryRepeat + binaryRed + binaryGreen + binaryBlue + binaryOnTime + binaryOffTime + binaryUpdate + binaryRingtone +binaryVolume;
+
+        const binaryString = binaryJump + binaryPad0 + binaryTarged + binaryRepeat + binaryRed + binaryGreen + binaryBlue + binaryOnTime + binaryOffTime + binaryUpdate + binaryRingtone + binaryVolume;
         console.log("JumpStep: ");
         console.log(this);
         console.log("Binary: " + binaryString);
@@ -76,15 +85,12 @@ class JumpStep {
     }
 }
 
-class KeepAliveSteep
-{
-    constructor(timeout = 15)
-    {
+class KeepAliveSteep {
+    constructor(timeout = 15) {
         this.timeout = timeout;
     }
 
-    toBinaryString()
-    {
+    toBinaryString() {
         let binaryString = 0x8.toString(2).padStart(4, 0);
         binaryString += this.timeout.toString(2).padStart(4, 0);
         binaryString += 0x0.toString(2).padStart(56, 0);
@@ -94,7 +100,7 @@ class KeepAliveSteep
 
 class Packet {
     constructor() {
-        this.steps =  Array.from({ length: 7 });
+        this.steps = Array.from({ length: 7 });
         this.sensitivity = 0; // Not Used by UC Alpha and UC Omega
         this.timeout = 0;     // Not Used by UC Alpha and UC Omega
         this.trigger = 0;     // Not Used by UC Alpha and UC Omega  
@@ -106,10 +112,10 @@ class Packet {
         this.steps.forEach(step => {
             if (step !== null && binaryString == null && step !== undefined)
                 binaryString = step.toBinaryString();
-            else if(step !== null && step !== undefined)
-                binaryString += step.toBinaryString();    
+            else if (step !== null && step !== undefined)
+                binaryString += step.toBinaryString();
             else
-                binaryString += 0x0.toString(2).padStart(64, 0);        
+                binaryString += 0x0.toString(2).padStart(64, 0);
         });
 
         binaryString += this.sensitivity.toString(2).padStart(8, 0);
@@ -120,7 +126,7 @@ class Packet {
         // Calculate and set checksum
         let checksum = calculateChecksum(binaryString)
         binaryString += checksum.toString(2).padStart(16, 0);
-        
+
         return binaryString;
     }
 }
@@ -128,32 +134,38 @@ class Packet {
 
 chrome.runtime.onInstalled.addListener(async () => {
     // Hier können Initialisierungsaktionen durchgeführt werden
-  });
-  
-  //extension://jlmiohfdolkdmgmfokapicdmegehijic/popup.html
-  //https://developer.chrome.com/docs/extensions/how-to/web-platform/webhid?hl=de
+});
 
-  chrome.runtime.onMessage.addListener(async (message) => {
-    if (message === "newDevice") {
-      const devices = await navigator.hid.getDevices();
-      for (const dev of devices) {
-        device = dev;
-        changeColor(0, 255, 0);
-      }
+//extension://jlmiohfdolkdmgmfokapicdmegehijic/popup.html
+//https://developer.chrome.com/docs/extensions/how-to/web-platform/webhid?hl=de
+chrome.runtime.onMessage.addListener(async (message) => {
+
+});
+
+chrome.runtime.onMessage.addListener(
+    function (request, sender, sendResponse) {
+        console.log(sender.tab ?
+            "from a content script:" + sender.tab.url :
+            "from the extension");
+        if (message === "newDevice") {
+            getDevices();
+        }
+        if (message.action === "setColor") {
+            changeColor(message.data);
+        }
+        if (request.greeting === "hello")
+            sendResponse({ farewell: "goodbye" });
     }
-    if (message.action === "setColor") {
-        changeColor(message.data);
-      }
-  });
+);
 
 
-async function changeColor(color)
-{
-    if (typeof(color.r) !== "number")
+
+async function changeColor(color) {
+    if (typeof (color.r) !== "number")
         color.r = 0;
-    if (typeof(color.g) !== "number")
+    if (typeof (color.g) !== "number")
         color.g = 0;
-    if (typeof(color.b) !== "number")
+    if (typeof (color.b) !== "number")
         color.b = 0;
 
     // Überprüfen Sie, ob die Werte zwischen 0 und 255 liegen
@@ -181,43 +193,46 @@ async function changeColor(color)
     stepStatic.red = color.r;
     stepStatic.green = color.g
     stepStatic.blue = color.b;
-    
-    if(sendPacket(packet));
-        console.log("Set Status Color: R="+ color.r + ", G="+color.g+", B="+color.b);
+
+    if (sendPacket(packet));
+    console.log("Set Status Color: R=" + color.r + ", G=" + color.g + ", B=" + color.b);
 
 }
-async function sendKeepAlive()
-{
+async function sendKeepAlive() {
     const packet = new Packet();
     const step = new KeepAliveSteep();
     packet.steps[0] = step;
 
-    if(sendPacket(packet))
+    if (sendPacket(packet))
         console.log("SendKeepAlive");
 }
-async function sendPacket(packet)
-{
-    if (isReady()){
-        if (!device.opened)
-            await device.open();
-        
-        const binaryString = packet.toBinaryString();    
-        const byteUArray = binaryStringToUint8Array(binaryString)
+async function sendPacket(packet) {
+    for (const dev of devices) {
+        if (isReady(dev)) {
+            if (!dev.opened)
+                await dev.open();
 
-        await device.sendReport(0, byteUArray);
-        await device.close();
-        return true;
+            const binaryString = packet.toBinaryString();
+            const byteUArray = binaryStringToUint8Array(binaryString)
+
+            await dev.sendReport(0, byteUArray);
+            await dev.close();
+            return true;
+        }
+        else {
+            console.warn("Device is not set, can not send Packet");
+            return false;
+        }
     }
-    else
-    {
-        console.warn("Device is not set, can not send Packet: " + packet);
-        return false;
-    }
+}
+async function getDevices() {
+    devices = await navigator.hid.getDevices();
+    
 }
 
 // Message Sender
 
-function idleStateChanged(toState){
+function idleStateChanged(toState) {
     const state = {
         action: "idleStateChanged",
         data: toState
@@ -226,5 +241,5 @@ function idleStateChanged(toState){
 }
 chrome.idle.setDetectionInterval(
     15
-  );
+);
 chrome.idle.onStateChanged.addListener(idleStateChanged);
