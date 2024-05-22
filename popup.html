@@ -1,51 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Text Inputs</title>
-<script src="popup.js" defer></script>
-<style>
-    #colorPicker {
-        width: 200px;
-        height: 200px;
-        border: 1px solid black;
-        cursor: pointer;
-    }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Inputs</title>
+    <script src="popup.js" defer></script>
+    <style>
+        #colorPicker {
+            width: 200px;
+            height: 200px;
+            border: 1px solid black;
+            cursor: pointer;
+        }
+    </style>
 </head>
+
 <body>
-<div>
-    <h2>Color Setup</h2>
-    
-    <label for="input1">Rot:</label><br>
-    <input type="text" id="input1"><br><br>
-    
-    <label for="input2">Grün:</label><br>
-    <input type="text" id="input2"><br><br>
-    
-    <label for="input3">Blau:</label><br>
-    <input type="text" id="input3"><br><br>
-    
-    <div id="colorDiff" style="display: inline-block; min-width: 150px; min-height: 150px;;">
-    </div><br>
-    
-    <button id="ConnectBackgroundBtn">Connect Background</button>
-    <button id="ColorPickerBtn">Select Color</button>
-    <button id="SetRedBtn">Besprechung</button>
-    <button id="SetGreenBtn">Verfügbar</button>
-    <button id="SetYellowBtn">AFK</button>
-    <button id="testBtn">test</button>
-    <button id="test2Btn">test2</button>
-</div>
-<div>
-    <h2>Status</h2>
-    
-    <label for="output1">AFK: </label><br>
-    <input type="text" id="output1"><br><br>
-    <label for="output2">Vom Platz: </label><br>
-    <input type="text" id="output2"><br><br>
-    <iframe src="busyLight-iframe.html"></iframe>
-</div>
+    <div>
+        <h2>Color Setup</h2>
+        <div style="margin-left: 10px;">
+            <div id="colorsDiv">
+            </div>
+            <div id="colorDiff" style="display: inline-block; min-width: 150px; min-height: 150px;;">
+            </div><br>
+        </div>
+
+        <button id="ConnectBackgroundBtn">Connect to BusyLight</button>
+        <button id="ReconnectBtn">Reconnect</button>
+        <button id="ColorPickerBtn">Select Color</button>
+
+        <div id="modeContainerBtns"></div>
+        <div id="Testing">
+            <label for="input1">Vol:</label><br>
+            <input type="text" id="input1"><br><br>
+
+            <label for="input2">Update:</label><br>
+            <input type="text" id="input2"><br><br>
+
+            <label for="input3">Ring:</label><br>
+            <input type="text" id="input3"><br><br>
+
+            <button id="testBtn">test</button>
+            <button id="test2Btn">test2</button>
+
+            <div>
+                <h2>Status</h2>
+
+                <label for="output1">AFK: </label><br>
+                <input type="text" id="output1"><br><br>
+                <label for="output2">Vom Platz: </label><br>
+                <input type="text" id="output2"><br><br>
+                <iframe src="busyLight-iframe.html"></iframe>
+            </div>
+        </div>
+    </div>
+
 </body>
+
 </html>

@@ -1,6 +1,6 @@
 {
     "manifest_version": 3,
-    "name": "USB BusyLight Control",
+    "name": "USB BusyLight Control V2",
     "version": "1.0",
     "description": "Steuert USB BusyLights von Kuando",
     "permissions": [

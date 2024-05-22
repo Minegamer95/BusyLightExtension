@@ -1,16 +1,21 @@
 let devices;
 let color = {r: 0, g: 0, b: 0};
+let lastIdleState;
 let settings = {
     modes: [
-        { name: "Besprechung", r: 255, g: 0, b: 0 },
-        { name: "Verfügbar", r: 0, g: 255, b: 0 },
-        { name: "LaptopLocket", r: 0, g: 255, b: 255 },
-        { name: "TeamsAFK", r: 0, g: 255, b: 255 },
+        { name: "Besprechung", color: {r: 255, g: 0, b: 0} },
+        { name: "Verfügbar", color: {r: 0, g: 255, b: 0 }},
+        { name: "Laptop Lock", color: {r: 255, g: 255, b: 0 }},
+        { name: "AFK", color: {r: 0, g: 255, b: 255 }},
     ],
+    monitorLaptopLock : true,
+    LaptopLockMode : "Laptop Lock",
+    monitorUserIdle : true,
+    UserIdleMode : "AFK",
     keepAliveInterval: 5000
 }
-let keepAliveInterval = 5000;
-keepAliveId = setInterval(sendKeepAlive, keepAliveInterval);
+
+keepAliveId = setInterval(sendKeepAlive, settings.keepAliveInterval);
 
 function isReady(device) {
     return device !== null && device !== undefined;
@@ -33,6 +38,23 @@ function calculateChecksum(binaryString) {
         checksum += byteValue; // Addiere das Byte zur Checksumme hinzu
     }
     return checksum &= 0xFFFF; // Beschränke die Checksumme auf 16 Bit
+}
+
+function clampValue(variable, minValue, maxValue, valueOnError = null) {
+    // Try parsing the variable as an integer
+    if(valueOnError == null)
+        valueOnError = minValue;
+
+    const intValue = parseInt(variable);
+
+    // Check if the parsed value is a valid integer
+    if (!isNaN(intValue)) {
+        // Clamp the parsed integer to the specified range
+        return Math.min(Math.max(intValue, minValue), maxValue);
+    } else {
+        // Return the minimum value if parsing fails or if the variable is not a number
+        return valueOnError;
+    }
 }
 
 class JumpStep {
@@ -147,31 +169,36 @@ chrome.runtime.onMessage.addListener(
         console.log(sender.tab ?
             "from a content script:" + sender.tab.url :
             "from the extension");
-        if (message === "newDevice") {
+        if (request === "newDevice") {
             getDevices();
         }
-        if (message.action === "setColor") {
-            changeColor(message.data);
+        if (request.action === "setColor") {
+            changeColor(request.data, false);
         }
-        if (request.greeting === "hello")
-            sendResponse({ farewell: "goodbye" });
+        if (request.action === "setColorDirect") {
+            changeColor(request.data, true);
+          }
+        if (request.action === "setAudio") {
+            setAudio(request.data);
+          }
+        if (request.action == "getInitData")
+        {
+            const data = {
+                setting : settings,
+                currentColor: color
+            }
+            sendResponse(data);
+        }
     }
 );
 
 
 
-async function changeColor(color) {
-    if (typeof (color.r) !== "number")
-        color.r = 0;
-    if (typeof (color.g) !== "number")
-        color.g = 0;
-    if (typeof (color.b) !== "number")
-        color.b = 0;
-
+async function changeColor(newColor, setDirect = false) {
     // Überprüfen Sie, ob die Werte zwischen 0 und 255 liegen
-    color.r = Math.min(255, Math.max(0, parseInt(color.r)));
-    color.g = Math.min(255, Math.max(0, parseInt(color.g)));
-    color.b = Math.min(255, Math.max(0, parseInt(color.b)));
+    color.r = clampValue(newColor.r, 0, 255);
+    color.g = clampValue(newColor.g, 0, 255);
+    color.b = clampValue(newColor.b, 0, 255);
 
     // Usage example:
     const packet = new Packet();
@@ -194,9 +221,28 @@ async function changeColor(color) {
     stepStatic.green = color.g
     stepStatic.blue = color.b;
 
+    if(setDirect)
+    {
+        packet.steps[0] = stepStatic;
+        stepStatic.target = 0;
+    }
+
     if (sendPacket(packet));
     console.log("Set Status Color: R=" + color.r + ", G=" + color.g + ", B=" + color.b);
 
+}
+
+async function setAudio(mode)
+{
+    const packet = new Packet();
+    const audio = new JumpStep();
+    packet.steps[0] = audio;
+
+    audio.update = clampValue(mode.update, 0, 1, 1);
+    audio.volume = clampValue(mode.volume, 0, 7);
+    audio.ringtone = clampValue(mode.ringtone, 0, 10);
+
+    sendPacket(packet);
 }
 async function sendKeepAlive() {
     const packet = new Packet();
@@ -206,25 +252,35 @@ async function sendKeepAlive() {
     if (sendPacket(packet))
         console.log("SendKeepAlive");
 }
-async function sendPacket(packet) {
-    for (const dev of devices) {
-        if (isReady(dev)) {
-            if (!dev.opened)
-                await dev.open();
 
-            const binaryString = packet.toBinaryString();
-            const byteUArray = binaryStringToUint8Array(binaryString)
-
-            await dev.sendReport(0, byteUArray);
-            await dev.close();
-            return true;
-        }
-        else {
-            console.warn("Device is not set, can not send Packet");
-            return false;
-        }
+async function sendPacket(packet)
+{
+    let succes = false;
+    if(devices == null || devices == undefined)
+    {
+        console.warn("Device is not set, can not send Packet: " + packet);
+        return succes;
     }
+    for (const device of devices) {
+    if (device !== null && device !== undefined){
+
+        if (!device.opened)
+            await device.open();
+        
+        const binaryString = packet.toBinaryString();    
+        const byteUArray = binaryStringToUint8Array(binaryString)
+
+        await device.sendReport(0, byteUArray);
+        await device.close();
+        succes = true;
+    }
+    else
+    {
+        console.warn("Device is not set, can not send Packet: " + packet);
+    }}
+    return succes;
 }
+
 async function getDevices() {
     devices = await navigator.hid.getDevices();
     
@@ -238,6 +294,19 @@ function idleStateChanged(toState) {
         data: toState
     };
     chrome.runtime.sendMessage(state);
+
+    switch(toState)
+    {
+        case "locked":
+            if(settings.monitorLaptopLock)
+                changeColor(settings.modes.find(x => x.name == settings.LaptopLockMode).color);
+            break;
+        default:
+            if(lastIdleState == "locked")
+                changeColor({r: 0, g: 255, b: 0});
+            
+    }
+    lastIdleState = toState;
 }
 chrome.idle.setDetectionInterval(
     15
