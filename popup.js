@@ -1,7 +1,7 @@
 'use strict';
 window.onload = async () => {
   let hasInit = false;
-  let isDevelopeOptionOn = true;
+  let isDevelopeOptionOn = false;
 
   if (isDevelopeOptionOn){
 

@@ -3,6 +3,7 @@ let color = {r: 0, g: 0, b: 0};
 let lastIdleState;
 let settings = {
     modes: [
+        { name: "Aus", color: {r: 0, g: 0, b: 0} },
         { name: "Besprechung", color: {r: 255, g: 0, b: 0} },
         { name: "Verfügbar", color: {r: 0, g: 255, b: 0 }},
         { name: "Laptop Lock", color: {r: 255, g: 255, b: 0 }},
