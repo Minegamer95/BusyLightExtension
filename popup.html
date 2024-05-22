@@ -19,18 +19,21 @@
 <body>
     <div>
         <h2>Color Setup</h2>
+        <div id="staticBtns" style="margin-left: 10px; margin-bottom: 5px;">
+            <button id="ConnectBackgroundBtn">Connect to BusyLight</button>
+            <button id="ReconnectBtn">Reconnect</button>
+            <button id="ColorPickerBtn">Select Custom Color</button>
+        </div>
+
+        <div id="modeContainerBtns" style="margin-left: 8px; margin-bottom: 5px;"></div>
+
         <div style="margin-left: 10px;">
             <div id="colorsDiv">
             </div>
-            <div id="colorDiff" style="display: inline-block; min-width: 150px; min-height: 150px;;">
-            </div><br>
+            <div id="colorDiff" style="display: inline-block; min-width: 250px; min-height: 250px;; border-radius: 25px;">
+            </div>
         </div>
 
-        <button id="ConnectBackgroundBtn">Connect to BusyLight</button>
-        <button id="ReconnectBtn">Reconnect</button>
-        <button id="ColorPickerBtn">Select Color</button>
-
-        <div id="modeContainerBtns"></div>
         <div id="Testing">
             <label for="input1">Vol:</label><br>
             <input type="text" id="input1"><br><br>

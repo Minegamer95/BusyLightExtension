@@ -46,7 +46,7 @@ function showColorPicker() {
     // Zeige den Farbwähler an
     const colorPicker = document.createElement('input');
     colorPicker.type = 'color';
-    colorPicker.addEventListener('change', function() {
+    colorPicker.addEventListener('input', function() {
         const selectedColor = colorPicker.value;
         const hex = selectedColor.substring(1); // Entferne das '#'-Zeichen
         const r = parseInt(hex.substring(0, 2), 16); // R-Wert
@@ -54,7 +54,7 @@ function showColorPicker() {
         const b = parseInt(hex.substring(4, 6), 16); // B-Wert
 
         setColor(r, g, b);
-        updateColor();
+        updateColor(true);
     });
     colorPicker.click();
 }
@@ -64,6 +64,7 @@ function createSlider(name, minValue = 0, maxValue = 255, update = function(col,
 
   const containerDiv = document.createElement('div');
   containerDiv.id = baseID;
+
   containerDiv.style.padding = '2px';
 
   //#region CreateLabel
@@ -80,6 +81,7 @@ function createSlider(name, minValue = 0, maxValue = 255, update = function(col,
   slider.min = minValue;
   slider.max = maxValue;
   slider.value = minValue;
+  slider.style.width = '250px'
   slider.style.display = 'block';
 //#endregion CreateSlider
   
@@ -182,6 +184,7 @@ let test2Btn = document.getElementById('test2Btn');
 //#region Register Listeners
 // Button Click Listernes
 document.getElementById('ColorPickerBtn').addEventListener('click', showColorPicker);
+document.getElementById('colorDiff').addEventListener('click', showColorPicker);
 
 let connectBtn = document.getElementById('ConnectBackgroundBtn');
 connectBtn.addEventListener("click", async () => {
